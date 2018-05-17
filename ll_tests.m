@@ -1,9 +1,11 @@
 
+
 %% fix seed for random number generator (to have repeatable results)
-rng(1);
+clear all;
+%% rng(1);
 %% "small n, large p" toy example
 n = 10;      %number of training data
-p = 100;     %number of coefficients or features
+p = 130;     %number of coefficients or features
 p_star  = 20;
 disp(['Number of Relevant Features:',num2str(p_star)]);
 
@@ -38,12 +40,12 @@ disp(['Number of Experts:', num2str(experts_nu)]);
 budget = p_star;
 
 % create random binary matrix of all experts feedbacks
-%all_feedbacks = randi([0 1], budget , experts_nu); 
+all_feedbacks = randsrc(budget,experts_nu,[0 1; .35 .65]); 
 
 % create increasing number of 1s in the feedback (accuracy)
-thresVec = linspace(0.45,0.8,experts_nu);  %# thresholds increasing accuracy between 0.45 & 0.8 
-all_feedbacks = bsxfun(@lt,rand(budget,experts_nu),thresVec); %# vectors are per column
-all_feedbacks = double(randVec);
+%thresVec = linspace(0.45,0.75,experts_nu);  %# thresholds increasing accuracy between 0.45 & 0.8 
+%all_feedbacks = bsxfun(@lt,rand(budget,experts_nu),thresVec); %# vectors are per column
+all_feedbacks = double(all_feedbacks);
 
 
 
@@ -107,19 +109,6 @@ disp('Mean Squared Error on test data:')
 
 disp(['Spike-and-slab without user feedback:',num2str(MSE_without_fb)])
 disp(['Ridge regression:',num2str(MSE_ridge)])
-
-%% For rng= 1 (line 2)
-%%Results for Example1: 
-%Mean Squared Error on test data:
-%Spike-and-slab with user feedback:2.9585
-%Spike-and-slab without user feedback:5.9338
-%Ridge regression:5.7933
-%%Results for Example2: 
-%Mean Squared Error on test data:
-%Spike-and-slab with user feedback:5.8128
-%Spike-and-slab without user feedback:5.9338
-%Ridge regression:5.7933
-
 
 
 
