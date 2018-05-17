@@ -4,22 +4,20 @@ rng(1);
 %% "small n, large p" toy example
 n = 10;      %number of training data
 p = 100;     %number of coefficients or features
-
-
-%prompt = 'What is the number of relevant coefficients';
-%p_star  = input(prompt); %number of relevant coefficients
-
 p_star  = 20;
 disp(['Number of Relevant Features:',num2str(p_star)]);
 
 %generate unknown, true coefficient values (only first p_star are non-zero)
 w_star = [randn(p_star, 1); zeros(p-p_star,1)];
+
 %create n, p dimensional training data
 x = randn(n,p);
 y = normrnd(x*w_star, 1);
+
 %create some test data
 x_test = randn(1000,p);
 y_test = normrnd(x_test*w_star, 1);
+
 %initialize the inputs
 pr  = struct('tau2', 1^2 , 'eta2',0.1^2,'p_u', 0.95, 'rho', p_star/p, ...
     'sigma2_prior',true,'sigma2_a',1,'sigma2_b',1 );
@@ -33,18 +31,21 @@ op = struct('damp',0.8, 'damp_decay',0.95, 'robust_updates',2, 'verbosity',0,...
 % ->  0 if the expert thinks  feature  "not relevant"  
 % ->  1 if the expert thinks  feature  "relevant" 
 
-%prompt1 = 'enter the number of experts';
-
-%experts_nu = input(prompt1);
 experts_nu = 5;
 disp(['Number of Experts:', num2str(experts_nu)]);
-%prompt2 = 'enter the number of questions, budget';
-%budget = input(prompt2);
 
 % number of questions to ask equal number of relevant features
 budget = p_star;
+
 % create random binary matrix of all experts feedbacks
-all_feedbacks = randi([0 1], budget , experts_nu); 
+%all_feedbacks = randi([0 1], budget , experts_nu); 
+
+% create increasing number of 1s in the feedback (accuracy)
+thresVec = linspace(0.45,0.8,experts_nu);  %# thresholds increasing accuracy between 0.45 & 0.8 
+all_feedbacks = bsxfun(@lt,rand(budget,experts_nu),thresVec); %# vectors are per column
+all_feedbacks = double(randVec);
+
+
 
 % calculating expert confidality 
 experts_level = mean(all_feedbacks,1);
@@ -61,8 +62,10 @@ MSE_with_multi_fb = zeros(experts_nu,1); %error per expert
         disp(['Spike-and-slab with user feedback ',num2str(j),' = ',num2str(MSE_with_multi_fb(j))]);
 
     end
-plot(experts_level, MSE_with_multi_fb);
-hold on;
+    
+    
+    plot(experts_level,MSE_with_multi_fb');
+    hold on;
 
 
     %majority vote
@@ -90,21 +93,7 @@ hold on;
             field_acc(j) = arrayfun(@(i) mean(all_feedbacks(i:i+field_size-1)) ,1:field_size:length(all_feedbacks)-field_size+1)';
         end
     end
-    disp(['Field accuracies:',num2str(field_acc)]);
-    
-    
-    %print(exp_lev);
-% exp_lev(1) = [exp_lev(1); zeros(p-budget)];
-%gamma_feedbacks = [[ones(p_star,1);zeros(p-p_star,1)], [1:p]'];
- 
-%****Example2 : the experts gives relevance feedback (either 0 or 1) at random 
-%gamma_feedbacks = [[randi([0,1],[p,1])], [1:p]'];
-%results with feedback (the proposed model [1])
-
-
-
-
-
+    %disp(['Field accuracies:',num2str(field_acc)])
 
 
 %results without feedback (only spike and slab model)
