@@ -1,17 +1,19 @@
-
+clear all;
 
 %% fix seed for random number generator (to have repeatable results)
-clear all;
-%% rng(1);
+
+rng(1);
 %% "small n, large p" toy example
 n = 10;      %number of training data
-p = 130;     %number of coefficients or features
-p_star  = 20;
+p = 1000;     %number of coefficients or features
+p_star  = 50;
 disp(['Number of Relevant Features:',num2str(p_star)]);
 
 %generate unknown, true coefficient values (only first p_star are non-zero)
 w_star = [randn(p_star, 1); zeros(p-p_star,1)];
 
+
+%start big loop
 %create n, p dimensional training data
 x = randn(n,p);
 y = normrnd(x*w_star, 1);
@@ -40,7 +42,7 @@ disp(['Number of Experts:', num2str(experts_nu)]);
 budget = p_star;
 
 % create random binary matrix of all experts feedbacks
-all_feedbacks = randsrc(budget,experts_nu,[0 1; .35 .65]); 
+all_feedbacks = randsrc(budget,experts_nu,[0 1; .2 .8]); 
 
 % create increasing number of 1s in the feedback (accuracy)
 %thresVec = linspace(0.45,0.75,experts_nu);  %# thresholds increasing accuracy between 0.45 & 0.8 
@@ -51,7 +53,7 @@ all_feedbacks = double(all_feedbacks);
 
 % calculating expert confidality 
 experts_level = mean(all_feedbacks,1);
-
+disp(['',experts_level]);
 %%exp_lev = zeros(experts_nu);
 feedback = zeros(2,p)';
 MSE_with_multi_fb = zeros(experts_nu,1); %error per expert
@@ -65,8 +67,11 @@ MSE_with_multi_fb = zeros(experts_nu,1); %error per expert
 
     end
     
-    
-    plot(experts_level,MSE_with_multi_fb');
+    %append MSE to experts then sort by accuracy
+    experts_MSE = [experts_level;MSE_with_multi_fb'];
+    [~,idx] = sort(experts_MSE(1,:)); % sort just the first row
+    experts_MSE_sorted = experts_MSE(:,idx); 
+    plot(experts_MSE_sorted(1,:),experts_MSE_sorted(2,:));
     hold on;
 
 
