@@ -1,7 +1,6 @@
 clear all;
 
 %% fix seed for random number generator (to have repeatable results)
-
 rng(1);
 %% "small n, large p" toy example
 n = 20;      %number of training data
@@ -18,11 +17,14 @@ disp(['Number of Experts:', num2str(experts_nu)]);
 % number of questions to ask equal number of relevant features
 budget = p_star;
 run_times = 100;
-disp(['number of runtimes',num2str(run_times)]);
+disp(['number of runtimes: ',num2str(run_times)]);
+
 %start big loop
 MSE = zeros(run_times, experts_nu);
-for iter= 1:run_times
+MSE_maj = zeros(run_times, 1);
 
+for iter= 1:run_times
+    
         %create n, p dimensional training data
         x = randn(n,p);
         y = normrnd(x*w_star, 1);
@@ -41,8 +43,6 @@ for iter= 1:run_times
         % ->  0 if the expert thinks  feature  "not relevant"  
         % ->  1 if the expert thinks  feature  "relevant" 
 
-
-
         % create random binary matrix of all experts feedbacks
         % variables, set % of 1s for each expert
         percentage_of_1 = [0.77 0.7 0.65 0.5 0.4];
@@ -56,48 +56,25 @@ for iter= 1:run_times
             % the first features are each time the ones with correct feedback
             feedback_per_expert = feedback_per_expert(randperm(length(feedback_per_expert)));
             all_feedbacks(i,:) = feedback_per_expert;
-        end
-
-        all_feedbacks = all_feedbacks';
-        %all_feedbacks = randsrc(budget,experts_nu,[0 1; .2 .8]);
-
-        % create increasing number of 1s in the feedback (accuracy)
-        %thresVec = linspace(0.45,0.75,experts_nu);  %# thresholds increasing accuracy between 0.45 & 0.8 
-        %all_feedbacks = bsxfun(@lt,rand(budget,experts_nu),thresVec); %# vectors are per column
-        all_feedbacks = double(all_feedbacks);
-
+       end
+        
+        all_feedbacks = double(all_feedbacks');
 
 
         % calculating expert confidality 
-        experts_level = mean(all_feedbacks,1);
+         experts_level = mean(all_feedbacks,1);
        
-        %%exp_lev = zeros(experts_nu);
         feedback = zeros(2,p)';
         MSE_with_multi_fb = zeros(experts_nu,1); %error per expert
 
+        
             for j = 1:experts_nu
-                %exp_lev(j) = sum(all_feedbacks(:,j))/budget;
                 feedback = [[all_feedbacks(1:budget,j); zeros(p-budget,1)], [1:p]' ];
                 [fa_fb, si, converged, subfunctions] = linreg_sns_ep(y, x, pr, op, [], feedback, []);
                 MSE_with_multi_fb(j) = mean((x_test*fa_fb.w.Mean- y_test).^2); 
-                %disp(['Spike-and-slab with user feedback ',num2str(j),' = ',num2str(MSE_with_multi_fb(j))]);
-                
+                               
             end
-MSE(iter,:)=MSE_with_multi_fb;
-%MSE_learnt = mean(MSE_with_multi_fb);
-%disp(['MSE Learnt at iteration',num2str(iter),'=', num2str(MSE_with_multi_fb)])
-end
-
-    MSE_avg = mean(MSE,1);
-    disp(['Spike-and-slab with user feedback  = ',num2str(MSE_avg)]);
-
-    plot(experts_level,MSE_avg);
-    xlabel('Expert Confidality');
-    ylabel('Error');
-    hold on;
-
-
-    %majority vote
+        %majority vote
         vote = mean(all_feedbacks,2);
         majority_feedback = zeros(length(vote),1);
         for i= 1:length(vote)
@@ -107,39 +84,40 @@ end
                 majority_feedback(i) = 0;
             end
         end
-    majority_feedback = [[majority_feedback; zeros(p-budget,1)], [1:p]' ];
-    [fa_fb, si, converged, subfunctions] = linreg_sns_ep(y, x, pr, op, [], majority_feedback, []);
-    MSE_with_majority_fb = mean((x_test*fa_fb.w.Mean- y_test).^2); 
-    disp(['Spike-and-slab majority feedback:',num2str(MSE_with_majority_fb)]);
+        majority_feedback = [[majority_feedback; zeros(p-budget,1)], [1:p]' ];
+        [fa_fb, si, converged, subfunctions] = linreg_sns_ep(y, x, pr, op, [], majority_feedback, []);
+        MSE_with_majority_fb = mean((x_test*fa_fb.w.Mean- y_test).^2); 
     
-    majority_confidality =mean(majority_feedback(1:150,1),1) ;
-    plot(majority_confidality,MSE_with_majority_fb,'r*','MarkerSize',10);
+        MSE_maj(iter) = MSE_with_majority_fb ;
+        MSE(iter,:) = MSE_with_multi_fb;
+end
+
+    MSE_avg = mean(MSE,1);
+    disp(['Spike-and-slab with user feedback  = ',num2str(MSE_avg)]);
+    MSE_maj_avg = mean(MSE_maj);
+    disp(['Spike-and-slab with Majority Vote feedback  = ',num2str(MSE_maj_avg)]);
+    plot(experts_level,MSE_avg);
+    xlabel('Expert Confidality');
+    ylabel('Error');
+    hold on;
+ 
+    majority_confidality =mean(majority_feedback(1:budget,1),1) ;
+    plot(majority_confidality,MSE_maj_avg,'r*','MarkerSize',10);
     
-    % Clustering features 
-    %field_size = round(budget,experts_nu);
-    %field_acc = zeros(experts_nu);
-    %for j = 1:experts_nu
-    %    temp = all_feedbacks(:,j);
-     %   for k =1:budget
-     %       field_acc(j) = arrayfun(@(i) mean(all_feedbacks(i:i+field_size-1)) ,1:field_size:length(all_feedbacks)-field_size+1)';
-     %   end
-    %end
-    %disp(['Field accuracies:',num2str(field_acc)])
+    
+    %results without feedback (only spike and slab model)
+    [fa, si, converged, subfunctions] = linreg_sns_ep(y, x, pr, op, [], [], []);
+    MSE_without_fb = mean((x_test*fa.w.Mean- y_test).^2);
+    %ridge regression solution
+    w_ridge = inv(eye(p) + (x'*x)) * (x'*y);
+    MSE_ridge = mean((x_test*w_ridge- y_test).^2);
 
+    disp('Mean Squared Error on test data:')
+    disp(['Spike-and-slab without user feedback:',num2str(MSE_without_fb)])
+    plot(MSE_without_fb,'ks','MarkerSize',11);
+    disp(['Ridge regression:',num2str(MSE_ridge)])
+    plot(MSE_ridge,'bx','MarkerSize',12);
 
-%results without feedback (only spike and slab model)
-[fa, si, converged, subfunctions] = linreg_sns_ep(y, x, pr, op, [], [], []);
-MSE_without_fb = mean((x_test*fa.w.Mean- y_test).^2);
-%ridge regression solution
-w_ridge = inv(eye(p) + (x'*x)) * (x'*y);
-MSE_ridge = mean((x_test*w_ridge- y_test).^2);
-
-disp('Mean Squared Error on test data:')
-
-disp(['Spike-and-slab without user feedback:',num2str(MSE_without_fb)])
-plot(MSE_without_fb,'ks','MarkerSize',11);
-disp(['Ridge regression:',num2str(MSE_ridge)])
-plot(MSE_ridge,'bx','MarkerSize',12);
 
 
 
@@ -147,6 +125,7 @@ plot(MSE_ridge,'bx','MarkerSize',12);
 % N= 20; p=1000;
 % Number of Relevant Features:150
 % Number of Experts:5
+% experts confidality : [0.77 0.7 0.65 0.5 0.4]
 % number of runtimes:100
 % Spike-and-slab with user feedback  = 135.035      136.0079       137.785      140.2984      142.1207
 % Spike-and-slab majority feedback:135.0031
