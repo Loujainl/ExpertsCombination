@@ -3,9 +3,9 @@ clear all;
 %% fix seed for random number generator (to have repeatable results)
 rng(1);
 %% "small n, large p" toy example
-n = 10;      %number of training data
-p = 100;     %number of coefficients or features
-p_star  = 15;
+n = 20;      %number of training data
+p = 1000;     %number of coefficients or features
+p_star  = 150;
 disp(['Number of Relevant Features:',num2str(p_star)]);
 
 %generate unknown, true coefficient values (only first p_star are non-zero)
@@ -70,21 +70,21 @@ budget = p_star;
 
 
         % Clustering features 
-    field_size = round(budget/experts_nu); 
-    % numbre of fields = number of experts
-    field_acc = zeros(experts_nu);
-	for j=1:experts_nu
-        temp = all_feedbacks(:,j)';
-    %calculating accuracy per field for each expert
-        field_acc(:,j) = mean(reshape(temp(1:field_size * floor(numel(temp) / field_size)), [], field_size), 2);
-    end
-[maxx, Indx] = max(field_acc,[],2);
+        field_size = round(budget/experts_nu); 
+        % numbre of fields = number of experts
+        field_acc = zeros(experts_nu);
+        for ex=1:experts_nu
+            tempo = all_feedbacks(:,ex)';
+        %calculating accuracy per field for each expert
+            field_acc(:,ex) = mean(reshape(tempo(1:field_size * floor(numel(tempo) / field_size)), [], field_size), 2);
+        end
+    [maxx, m_indx] = max(field_acc,[],2);
 % retrieving the best feedback from max field_accuracy
-best_feed = zeros(budget,1);
-for x = 1: experts_nu
-    best_feed(((x-1)*field_size)+1: x*field_size,:) = all_feedbacks(((x-1)*field_size)+1: x*field_size , Indx(x));
-    % best_feed(x-1)*field_size)+1: x*field_size) = [best_feed; temp];
-end
+    best_feed = zeros(budget,1);
+    for count = 1: experts_nu
+        best_feed(((count-1)*field_size)+1: count*field_size,:) = all_feedbacks(((count-1)*field_size)+1: count*field_size , m_indx(count));
+        % best_feed(x-1)*field_size)+1: x*field_size) = [best_feed; temp];
+    end
 
     best_feed = [[best_feed(1:budget,:); zeros(p-budget,1)], [1:p]' ];
     best_feed_level =mean(best_feed(1:budget,1),1);
