@@ -1,8 +1,3 @@
-
-% source of this code https://github.com/HIIT/knowledge-elicitation-for-linear-regression.git
-%[1] Pedram Daee, Tomi Peltola, Marta Soare and Samuel Kaski. 
-%Knowledge Elicitation via Sequential Probabilistic Inference for High-Dimensional Prediction, 
-%Machine Learning, 2017, DOI: 10.1007/s10994-017-5651-7 
 function [fa, si, converged, subfunctions] = linreg_sns_ep(y, x, pr, op, w_feedbacks, gamma_feedbacks, si)
 % -- Likelihood (y are data, f are feedbacks):
 %    p(y_i|x_i,w,sigma2) = N(y_i|w'x_i, sigma2)
@@ -148,7 +143,7 @@ for iter = 1:op.max_iter
     %% gamma feedback updates
     if n_gamma_feedbacks > 0
         % cavity
-        ca_gf = compute_bernoulli_lik_cavity(fa.gamma.p_nat, si.gamma_feedback, gamma_feedbacks(:, 2));
+        ca_gf = compute_bernoulli_lik_cavity(fa.gamma.p_nat, si.gamma_feedback, gamma_feedbacks(:,2));
 
         % moments of tilted dists
         ti_gf = compute_bernoulli_lik_tilt(ca_gf, pr, gamma_feedbacks(:, 1));
