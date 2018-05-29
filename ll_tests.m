@@ -5,7 +5,7 @@ rng(1);
 %% "small n, large p" toy example
 n = 20;      %number of training data
 p = 1000;     %number of coefficients or features
-p_star  = 150;
+p_star  = 120;
 disp(['Number of training data:', num2str(n)]);
 disp(['Number of features:', num2str(p)]);
 
@@ -19,8 +19,8 @@ disp(['Number of Experts:', num2str(experts_nu)]);
 
 % number of questions to ask equal number of relevant features
 budget = p_star;
-run_times = 10;
-disp(['number of runtimes: ',num2str(run_times)]);
+run_times = 100;
+disp(['Number of runtimes: ',num2str(run_times)]);
 
 %start big loop
 MSE = zeros(run_times, experts_nu);
@@ -59,7 +59,7 @@ for iter= 1:run_times
 
         % create random binary matrix of all experts feedbacks
         % variables, set % of 1s for each expert
-        percentage_of_1 = [0.77 0.7 0.65 0.5 0.4];
+        percentage_of_1 = [0.70 0.65 0.55 0.50 0.45];
         all_feedbacks = zeros(experts_nu,budget); 
         % generate feedback accordingly 
         for i=1:experts_nu 
@@ -142,12 +142,16 @@ for iter= 1:run_times
         MSE_ridge_nofb(iter) = MSE_ridge; 
         
 end
-
+    disp(['Experts Levels:',num2str(experts_level)]);
     MSE_avg = mean(MSE,1);
     disp(['Spike-and-slab with user feedback  = ',num2str(MSE_avg)]);
     MSE_maj_avg = mean(MSE_maj);
+    majority_confidality =mean(majority_feedback(1:budget,1),1) ;
+    disp([' Majority Vote accuracy level  = ',num2str(majority_confidality)]);
     disp(['Spike-and-slab with Majority Vote feedback  = ',num2str(MSE_maj_avg)]);
     MSE_Best_avg = mean(MSE_Best);
+    disp(['Best Field accuracy level  = ',num2str(best_feed_level)]);
+
     disp(['Spike-and-slab with Best Field feedback  = ',num2str(MSE_Best_avg)]);
     
     
@@ -156,7 +160,7 @@ end
     ylabel('Error');
     hold on;
  
-    majority_confidality =mean(majority_feedback(1:budget,1),1) ;
+
     plot(majority_confidality,MSE_maj_avg,'r*','MarkerSize',10);
     
     plot(best_feed_level,MSE_Best_avg,'gx','MarkerSize',12);
@@ -177,14 +181,16 @@ end
 % % Results: 
 %Number of training data:20
 %Number of features:1000
-%Number of Relevant Features:150
+%Number of Relevant Features:120
 % Number of Experts:5
-% experts confidality : [0.77 0.7 0.65 0.5 0.4]
-% number of runtimes:10
-% Spike-and-slab with user feedback  = 130.5198      132.3882      134.7141      136.6413      138.5169
-% Spike-and-slab with Majority Vote feedback  = 132.2505
-%Spike-and-slab with Best Field feedback  = 132.5059
+% Experts Levels:0.7        0.65        0.55         0.5        0.45
+% Number of runtimes: 100
+% Spike-and-slab with user feedback  = 104.1376      105.2314      106.7152      107.8083      108.2868
+% Majority Vote accuracy level  = 0.63333
+% Spike-and-slab with Majority Vote feedback  = 105.7359
+% Best Field accuracy level  = 0.70833
+%Spike-and-slab with Best Field feedback  = 104.5828
 % Mean Squared Error on test data:
-% Spike-and-slab without user feedback:143.233
-% Ridge regression:143.2995
+% Spike-and-slab without user feedback:113.6258
+% Ridge regression:113.6488
 
