@@ -1,9 +1,9 @@
-clear all;
+%clear all;
 
 %% fix seed for random number generator (to have repeatable results)
 rng(1);
 %% "small n, large p" toy example
-n = 20;      %number of training data
+n = 10;      %number of training data
 p = 1000;     %number of coefficients or features
 p_star  = 120;
 disp(['Number of training data:', num2str(n)]);
@@ -36,16 +36,26 @@ for iter= 1:run_times
         y = normrnd(x*w_star, 1);
         
         % Normalize  training data
-       % x = (x-mean(x))/std(x);
-       % y = (y-mean(y))/std(y);
+        x_mean = mean(x);
+        x_std = std(x);
+        x = (x-x_mean)./x_std;
+        
+        y_mean = mean(y);
+        y_std = std(y);
+        y = (y-y_mean)./y_std;
 
         %create some test data
         x_test = randn(1000,p);
         y_test = normrnd(x_test*w_star, 1);
         
         % Normalise test data
-      %  x_test = (x_test-mean(x_test))/std(x_test);
-      %  y_test = (y_test-mean(y_test))/std(y_test);
+        test_mean = mean(x_test);
+        test_std = std(x_test);
+        x_test = (x_test-test_mean)./test_std;
+        
+        ytest_mean = mean(y_test);
+        ytest_std = std(y_test);
+       y_test = (y_test-ytest_mean)./ytest_std;
 
         %initialize the inputs
         pr  = struct('tau2', 1^2 , 'eta2',0.1^2,'p_u', 0.95, 'rho', p_star/p, ...
@@ -59,7 +69,7 @@ for iter= 1:run_times
 
         % create random binary matrix of all experts feedbacks
         % variables, set % of 1s for each expert
-        percentage_of_1 = [0.70 0.65 0.55 0.50 0.45];
+        percentage_of_1 = [0.70 0.6 0.55 0.50 0.4];
         all_feedbacks = zeros(experts_nu,budget); 
         % generate feedback accordingly 
         for i=1:experts_nu 
@@ -155,15 +165,18 @@ end
     disp(['Spike-and-slab with Best Field feedback  = ',num2str(MSE_Best_avg)]);
     
     
-    plot(experts_level,MSE_avg);
-    xlabel('Expert Confidality');
+    %plot(experts_level,MSE_avg,'b--o');
+    plot(1:run_times,MSE(:,1),'--bo','LineWidth',2,'MarkerSize',10);
+    xlabel('Iteration');
     ylabel('Error');
     hold on;
  
 
-    plot(majority_confidality,MSE_maj_avg,'r*','MarkerSize',10);
+   % plot(majority_confidality,MSE_maj_avg,'r*','MarkerSize',10);
+    plot(1:run_times,MSE_maj,'r-*','LineWidth',2,'MarkerSize',10);
     
-    plot(best_feed_level,MSE_Best_avg,'gx','MarkerSize',12);
+    %plot(best_feed_level,MSE_Best_avg,'gx','MarkerSize',12);
+    plot(1:run_times,MSE_Best,'k-.d','LineWidth',2,'MarkerSize',10);
 
 
     disp('Mean Squared Error on test data:')
@@ -174,23 +187,24 @@ end
     MSE_ridge_nofb_avg = mean(MSE_ridge_nofb);
     disp(['Ridge regression:',num2str(MSE_ridge_nofb_avg)])
     plot(0,MSE_ridge_nofb_avg,'rs','MarkerSize',16);
-
+    %legend(series, 'Location', 'NorthWest');
 
 
 
 % % Results: 
-%Number of training data:20
+%Number of training data:10
 %Number of features:1000
 %Number of Relevant Features:120
-% Number of Experts:5
-% Experts Levels:0.7        0.65        0.55         0.5        0.45
-% Number of runtimes: 100
-% Spike-and-slab with user feedback  = 104.1376      105.2314      106.7152      107.8083      108.2868
-% Majority Vote accuracy level  = 0.63333
-% Spike-and-slab with Majority Vote feedback  = 105.7359
-% Best Field accuracy level  = 0.70833
-%Spike-and-slab with Best Field feedback  = 104.5828
-% Mean Squared Error on test data:
-% Spike-and-slab without user feedback:113.6258
-% Ridge regression:113.6488
+%Number of Experts:5
+%Number of runtimes: 100
+%Experts Levels:0.7         0.6        0.55         0.5         0.4
+%Spike-and-slab with user feedback  = 0.9543     0.96592     0.98264     0.99413      1.0246
+% Majority Vote accuracy level  = 0.59167
+%Spike-and-slab with Majority Vote feedback  = 0.97254
+%Best Field accuracy level  = 0.63333
+%Spike-and-slab with Best Field feedback  = 0.95462
+%Mean Squared Error on test data:
+%Spike-and-slab without user feedback:0.99066
+%Ridge regression:0.99066
+%
 
