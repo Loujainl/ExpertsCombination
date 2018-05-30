@@ -4,8 +4,8 @@
 rng(1);
 %% "small n, large p" toy example
 n = 10;      %number of training data
-p = 1000;     %number of coefficients or features
-p_star  = 120;
+p = 100;     %number of coefficients or features
+p_star  = 20;
 disp(['Number of training data:', num2str(n)]);
 disp(['Number of features:', num2str(p)]);
 
@@ -69,7 +69,7 @@ for iter= 1:run_times
 
         % create random binary matrix of all experts feedbacks
         % variables, set % of 1s for each expert
-        percentage_of_1 = [0.70 0.6 0.55 0.50 0.4];
+        percentage_of_1 = [0.7 0.6 0.55 0.45 0.4];
         all_feedbacks = zeros(experts_nu,budget); 
         % generate feedback accordingly 
         for i=1:experts_nu 
@@ -166,17 +166,18 @@ end
     
     
     %plot(experts_level,MSE_avg,'b--o');
-    plot(1:run_times,MSE(:,1),'--bo','LineWidth',2,'MarkerSize',10);
+    plot(MSE(:,1),'b','LineWidth',2,'MarkerSize',8);
+   
     xlabel('Iteration');
     ylabel('Error');
     hold on;
- 
+    plot(MSE(:,end),'g','MarkerSize',8);
 
    % plot(majority_confidality,MSE_maj_avg,'r*','MarkerSize',10);
-    plot(1:run_times,MSE_maj,'r-*','LineWidth',2,'MarkerSize',10);
+    plot(MSE_maj,'r*','MarkerSize',8);
     
     %plot(best_feed_level,MSE_Best_avg,'gx','MarkerSize',12);
-    plot(1:run_times,MSE_Best,'k-.d','LineWidth',2,'MarkerSize',10);
+    plot(MSE_Best,'k','LineWidth',2,'MarkerSize',8);
 
 
     disp('Mean Squared Error on test data:')
