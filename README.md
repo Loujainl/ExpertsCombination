@@ -11,4 +11,6 @@ UJM Saint-Étienne, France · Collaboration with Laboratory of Fundamental Compu
 
 **Title:** "Combining Users Feedback as a Source of Additional Knowledge for Regression". [Link](https://drive.google.com/file/d/1mTGRqmZZjkaziyB-aZIOs0-wO86i42nT/view?usp=drive_link)
 
+**Author:** Loujain Liekah
+
 **Supervisors**:  Dr. [Emilie Morvant](https://emorvant.github.io/), Dr. [Marta Soare](https://martasoare.github.io/), Pr. [Amaury Habrard](https://perso.univ-st-etienne.fr/habrarda/).
