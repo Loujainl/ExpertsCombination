@@ -9,6 +9,6 @@ This MATLAB code is used to test our two proposed methods (Majority Vote, and Fi
 Research And Development Internship at Laboratoire Hubert Curien 
 UJM Saint-Étienne, France · Collaboration with Laboratory of Fundamental Computer Science of Orléans (LIFO).
 
-**Title:** "Combining Users Feedback as a Source of Additional Knowledge for Regression".
+**Title:** "Combining Users Feedback as a Source of Additional Knowledge for Regression". [Link](https://drive.google.com/file/d/1mTGRqmZZjkaziyB-aZIOs0-wO86i42nT/view?usp=drive_link)
 
 **Supervisors**:  Dr. [Emilie Morvant](https://emorvant.github.io/), Dr. [Marta Soare](https://martasoare.github.io/), Pr. [Amaury Habrard](https://perso.univ-st-etienne.fr/habrarda/).
