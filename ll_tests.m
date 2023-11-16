@@ -1,3 +1,13 @@
+%% ---------------------------------------------------------------------------------------------------------------
+%% Script name: ll_tests.m
+%% Purpose of script: Simulations of suggested methods to combine the feedback of multiple users on the relevancy of features for regression and estimating the accuracy of the model
+%% Author: Loujain Liekah
+%% Date Created: 15-07-2018
+%% Copyright (c) Loujain Liekah, 2018
+%% ----------------------------------------------------------------------------------------------------------------
+%%
+
+
 %clear all;
 
 %% fix seed for random number generator (to have repeatable results)
