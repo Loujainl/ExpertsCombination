@@ -3,7 +3,7 @@
 Research And Development Internship at Laboratoire Hubert Curien 
 UJM Saint-Étienne, France · Collaboration with Laboratory of Fundamental Computer Science of Orléans (LIFO).
 
-**Title:** "Combining Users Feedback as a Source of Additional Knowledge for Regression". [Link](https://drive.google.com/file/d/1mTGRqmZZjkaziyB-aZIOs0-wO86i42nT/view?usp=drive_link)
+**Title:** "Combining Users Feedback as a Source of Additional Knowledge for Regression". [Link](https://hal.science/hal-04277019)
 
 **Author:** Loujain Liekah
 
